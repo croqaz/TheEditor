@@ -87,7 +87,7 @@ describe('Shots', () => {
     };
     const deps: ShotsDeps = {
       cacheDir: root,
-      toolPath: '/tools/te-snap.py',
+      toolPath: '/scripts/te-snap.py',
       python: 'python3',
       run,
       which: async bin => bin === 'spectacle',
@@ -206,7 +206,7 @@ describe('Shots', () => {
     expect(result.metrics.dpr).toBe(2);
     const args = calls[0]!.args;
     expect(calls[0]!.cmd).toBe('python3');
-    expect(args.slice(0, 3)).toEqual(['-I', '/tools/te-snap.py', 'render']);
+    expect(args.slice(0, 3)).toEqual(['-I', '/scripts/te-snap.py', 'render']);
     expect(args).toContain('--viewport');
     expect(args[args.indexOf('--backend') + 1]).toBe('x11');
     expect(args[args.indexOf('--width') + 1]).toBe('900');
@@ -260,7 +260,7 @@ describe('Shots', () => {
     });
     expect(calls.at(-1)!.args).toEqual([
       '-I',
-      '/tools/te-snap.py',
+      '/scripts/te-snap.py',
       'crop',
       '--in',
       '/a.png',

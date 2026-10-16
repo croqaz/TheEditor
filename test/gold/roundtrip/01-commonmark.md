@@ -21,15 +21,14 @@ flavour: commonmark
 
 # Closing hashes are allowed
 
-Paragraph with _emphasis_, _also emphasis_, **strong**, **also strong**,
-_**both**_, `inline code`, ``code with ` backtick``, and a hard line break at
-the end of this line\
+Paragraph with *emphasis*, *also emphasis*, _emphasis 2_, _also emphasis 2_, **strong**, **also strong**,
+***both***, `inline code`, ``code with ` backtick``, and a hard line break at the end of this line\
 followed by a backslash break, and two trailing spaces\
 followed by a spaces break.
 
 Soft breaks join these two lines into one paragraph.
 
-Intraword emphasis: snake_case_word stays, but *this*is_emphasised_ partially.
+Intraword emphasis: snake_case_word stays, but *this*is_emphasised\_ partially.
 Escapes: \*not emphasis\*, # not a heading, \`not code\`, 1. not a list.
 
 Entities: © & < > " # 😀  end.
@@ -108,15 +107,13 @@ nested fence inside a longer fence
 ```
 ````
 
-Links: [inline](https://example.com), [with title](https://example.com 'Title'),
-[reference](https://example.com/ref 'Reference title'),
-[collapsed](https://example.com/collapsed),
-[shortcut](https://example.com/shortcut), <https://autolink.example>,
-<mailto:someone@example.com>, [relative](./02-gfm.md),
-[anchor](#heading-level-1), [empty](<>).
+Links: [inline](https://example.com), [with title](https://example.com "Title"),
+[reference](https://example.com/ref 'Reference title'), [collapsed](https://example.com/collapsed), [shortcut](https://example.com/shortcut),
+<https://autolink.example>, <mailto:someone@example.com>,
+[relative](./02-gfm.md), [anchor](#heading-level-1), [empty]().
 
 Images: ![alt text](img/sample.png),
-![with title](img/sample.png 'Image title'), ![reference image](img/sample.png),
+![with title](img/sample.png "Image title"), ![reference image](img/sample.png),
 ![](img/no-alt.png).
 
 Raw inline HTML: <kbd>Ctrl</kbd>+<kbd>S</kbd>, a <span class="note">span</span>,

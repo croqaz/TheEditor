@@ -9,9 +9,9 @@ flavour: gfm
 
 | Left                | Center |    Right | Default                     |
 | :------------------ | :----: | -------: | --------------------------- |
-| a                   |   b    |        c | d                           |
+| a                   |    b   |        c | d                           |
 | longer cell content | `code` | **bold** | [link](https://example.com) |
-| escaped \| pipe     |   x    |        y | z                           |
+| escaped \| pipe     |    x   |        y | z                           |
 
 Minimal table:
 
@@ -37,9 +37,8 @@ This is ~~struck through~~ and this is ~~also struck~~ with a single tilde.
 
 ## Autolinks (extended)
 
-Plain URL: <https://example.com/path?query=1&b=2#frag> and
-[www.example.com](http://www.example.com) and an email <someone@example.org>
-become links.
+Plain URL: <https://example.com/path?query=1&b=2#frag> and [www.example.com](http://www.example.com) and an
+email <someone@example.org> become links.
 
 ## Footnotes
 

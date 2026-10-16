@@ -1,4 +1,4 @@
-// Global stand-in for `electrobun/view`, installed by tests/setup.ts. The
+// Global stand-in for `electrobun/view`, installed by test/setup.ts. The
 // real `src/view/rpc.ts` runs on top of it; tests swap the backing FakeMain.
 import type { FakeMain } from './fake-main';
 

@@ -1,0 +1,10 @@
+# Fixtures and third-party material must keep their exact bytes.
+.hutch/
+artifacts/
+build/
+coverage/
+dist/
+docs/
+inspiration/
+test/gold/
+vendor/

@@ -2,11 +2,15 @@ import { describe, expect, test } from 'bun:test';
 import { applyCaret, applyFont, applyTheme, getTheme, listThemes, registerTheme } from '../../src/view/theme';
 
 describe('themes', () => {
-  test('four built-ins, each with twelve tokens', () => {
+  test('four built-ins, each with twelve text and chrome colours and seven code colours', () => {
     expect(listThemes().sort()).toEqual(['gruvbox-dark', 'gruvbox-light', 'nord-dark', 'nord-light']);
     for (const name of listThemes()) {
       const theme = getTheme(name)!;
-      expect(Object.keys(theme.vars)).toHaveLength(12);
+      const keys = Object.keys(theme.vars);
+      expect(keys).toHaveLength(19);
+      expect(keys.filter(key => key.startsWith('syn-')).sort()).toEqual(
+        ['syn-attr', 'syn-comment', 'syn-keyword', 'syn-number', 'syn-string', 'syn-tag', 'syn-title'].sort()
+      );
       expect(theme.name).toBe(name);
       expect(theme.dark).toBe(name.endsWith('-dark'));
     }
@@ -34,7 +38,12 @@ describe('themes', () => {
     const style = document.documentElement.style;
     expect(style.getPropertyValue('--te-bg')).toBe('#000');
     expect(style.getPropertyValue('--te-fg')).toBe('#fff');
+    // Variables the previous theme set and this one leaves out are gone, so the stylesheet defaults apply.
+    expect(style.getPropertyValue('--te-accent')).toBe('');
+    expect(style.getPropertyValue('--te-syn-keyword')).toBe('');
     expect(listThemes()).toContain('mine');
+    applyTheme('nord-dark');
+    expect(style.getPropertyValue('--te-syn-keyword')).toBe('#81a1c1');
   });
 
   test('applyFont writes the typography variables', () => {

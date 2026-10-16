@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, test } from 'bun:test';
 import { setFakeMain, viewMockState } from '../helpers/electrobun-view-mock';
 import { createFakeMain } from '../helpers/fake-main';
 
-// The real module, running on the fake `electrobun/view` installed by tests/setup.ts.
+// The real module, running on the fake `electrobun/view` installed by test/setup.ts.
 const rpc = await import('../../src/view/rpc');
 
 describe('view rpc', () => {

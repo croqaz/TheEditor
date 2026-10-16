@@ -37,4 +37,6 @@ web_modules/
 # More stuff
 .cottontail-*/
 .hutch/
+skills/
 vendor/
+docs/

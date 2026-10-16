@@ -22,6 +22,13 @@
   --te-error: #fb4934;
   --te-debug: #8ec07c;
   --te-mark: #665c54;
+  --te-syn-comment: #928374;
+  --te-syn-keyword: #fb4934;
+  --te-syn-string: #b8bb26;
+  --te-syn-number: #d3869b;
+  --te-syn-tag: #fabd2f;
+  --te-syn-attr: #83a598;
+  --te-syn-title: #8ec07c;
 }
 
 * {
@@ -178,7 +185,7 @@ body.te-zen .te-bar {
 
 /* ---- editor area --------------------------------------------------------- */
 
-/* registration marks: drawn only while te.shot.screen() captures, found by tools/te-snap.py marks */
+/* registration marks: drawn only while te.shot.screen() captures, found by scripts/te-snap.py marks */
 body.te-marks .te-pane {
   outline: 4px solid #ff00ff;
   outline-offset: -4px;

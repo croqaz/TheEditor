@@ -87,12 +87,12 @@ async function appInfo(): Promise<AppInfo> {
   };
 }
 
-// tools/te-snap.py lives next to the sources in dev and under Resources/tools in a bundle.
+// scripts/te-snap.py lives next to the sources in dev and under Resources/scripts in a bundle.
 function locateTool(): string {
   const candidates = [
-    join(cwd, 'tools', 'te-snap.py'),
-    join(dirname(process.argv[1] ?? ''), 'tools', 'te-snap.py'),
-    join(dirname(process.argv[1] ?? ''), '..', 'Resources', 'tools', 'te-snap.py'),
+    join(cwd, 'scripts', 'te-snap.py'),
+    join(dirname(process.argv[1] ?? ''), 'scripts', 'te-snap.py'),
+    join(dirname(process.argv[1] ?? ''), '..', 'Resources', 'scripts', 'te-snap.py'),
   ];
   return process.env.TE_SNAP_TOOL ?? candidates[0]!;
 }

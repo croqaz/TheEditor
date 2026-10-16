@@ -1,5 +1,6 @@
 // Milkdown kit editor: CommonMark + GFM + history/clipboard/cursor/trailing/indent,
-// the front-matter node, and a change tracker. No Crepe, no toolbars.
+// syntax colours (plugin-highlight with lowlight), the front-matter node, editable
+// raw HTML, the block caret and a change tracker. No Crepe, no toolbars.
 import {
   defaultValueCtx,
   Editor,
@@ -20,6 +21,7 @@ import type { EditorView } from '@milkdown/kit/prose/view';
 import { $prose, getMarkdown, replaceAll } from '@milkdown/kit/utils';
 import { blockCaret } from './blockcaret';
 import { frontmatter, skipFrontmatter } from './frontmatter';
+import { configureHighlight, highlight } from './highlight';
 import { html } from './html';
 
 export interface EditorHooks {
@@ -91,6 +93,7 @@ export async function createEditor(root: HTMLElement, markdown: string, hooks: E
         },
       }));
     })
+    .config(configureHighlight)
     .use(commonmarkWithoutHtml)
     .use(html)
     .use(gfm)
@@ -101,6 +104,7 @@ export async function createEditor(root: HTMLElement, markdown: string, hooks: E
     .use(indent)
     .use(frontmatter)
     .use(blockCaret)
+    .use(highlight)
     .use(changeTracker(hooks))
     .create();
   const created = performance.now() - t0;

@@ -1,4 +1,6 @@
-// Themes are twelve custom properties plus optional font settings.
+// Themes are nineteen custom properties (twelve for text and chrome, seven `syn-*`
+// code colours) plus optional font settings. A theme may leave the `syn-*` ones
+// out: editor.css then falls back to the text colours.
 import type { Config } from '../../shared/config-schema';
 import gruvboxDark from './gruvbox-dark.json';
 import gruvboxLight from './gruvbox-light.json';
@@ -26,15 +28,24 @@ export function registerTheme(theme: Theme) {
   themes.set(theme.name, theme);
 }
 
+let applied: string[] = [];
+
 export function applyTheme(name: string): Theme {
   const theme = themes.get(name);
   if (!theme) {
     throw new Error(`Unknown theme: ${name}. Known: ${listThemes().join(', ')}`);
   }
   const root = document.documentElement;
-  for (const [key, value] of Object.entries(theme.vars)) {
-    root.style.setProperty(key.startsWith('--') ? key : `--te-${key}`, value);
+  const properties = Object.entries(theme.vars).map(([key, value]) => {
+    const property = key.startsWith('--') ? key : `--te-${key}`;
+    root.style.setProperty(property, value);
+    return property;
+  });
+  // A variable the previous theme set but this one leaves out falls back to the stylesheet.
+  for (const property of applied) {
+    if (!properties.includes(property)) root.style.removeProperty(property);
   }
+  applied = properties;
   root.dataset.theme = theme.name;
   root.style.colorScheme = theme.dark ? 'dark' : 'light';
   return theme;

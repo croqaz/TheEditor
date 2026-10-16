@@ -3,7 +3,7 @@ import { TextSelection } from '@milkdown/kit/prose/state';
 import { handlePaneMouseDown, placeCaretFromOutsideClick } from '../../src/view/editor/caret';
 import { createEditor } from '../../src/view/editor/create';
 
-// tests/setup.ts gives every element the box {top 0, bottom 20, left 0, right 100}.
+// test/setup.ts gives every element the box {top 0, bottom 20, left 0, right 100}.
 async function make(markdown = 'first paragraph\n\nsecond paragraph\n') {
   const pane = document.createElement('div');
   const inner = document.createElement('div');

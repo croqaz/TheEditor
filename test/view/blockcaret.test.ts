@@ -11,7 +11,7 @@ import {
 } from '../../src/view/editor/blockcaret';
 import { createEditor } from '../../src/view/editor/create';
 
-// tests/setup.ts gives every element and range the box {0,0,100,20}.
+// test/setup.ts gives every element and range the box {0,0,100,20}.
 
 async function makeEditor(markdown = '# Title\n\nSome text here.\n') {
   const pane = document.createElement('div');

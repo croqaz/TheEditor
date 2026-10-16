@@ -1,5 +1,5 @@
 // Screenshots on the main-process side: a directory per capture, the visible
-// window through a screen backend, full-document renders through tools/te-snap.py
+// window through a screen backend, full-document renders through scripts/te-snap.py
 // (WebKitGTK), and crop/diff/marks through the same tool. All external work goes
 // through injected functions so this module is unit-testable.
 import { encode as encodePng } from 'fast-png';

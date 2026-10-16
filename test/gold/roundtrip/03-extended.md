@@ -14,7 +14,7 @@ a remark plugin is added (see `PROPOSAL-v2.md` §15).
 
 Term one : Definition of term one.
 
-Term two : First definition. : Second definition with _emphasis_.
+Term two : First definition. : Second definition with *emphasis*.
 
 ## Abbreviations
 
@@ -83,7 +83,7 @@ Table: A caption for the table above.
 
 ## Line blocks (Pandoc)
 
-\| The limerick packs laughs anatomical \| In space that is quite economical.
+\| The limerick packs laughs anatomical | In space that is quite economical.
 
 ## Metadata blocks (MultiMarkdown)
 

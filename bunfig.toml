@@ -1,0 +1,11 @@
+[test]
+root = "test"
+preload = ["./test/setup.ts"]
+coverage = true
+coverageThreshold = 0.9
+coverageSkipTestFiles = true
+coverageReporter = ["text", "lcov"]
+coverageDir = "coverage"
+# Bootstraps only wire modules together and need the real Electrobun runtime;
+# they are exercised by the smoke run (TE_SMOKE=1), not by unit tests.
+coveragePathIgnorePatterns = ["src/main/index.ts", "src/view/main.ts", "src/view/vite-env.d.ts", "test/**"]

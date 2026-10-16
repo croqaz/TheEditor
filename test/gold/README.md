@@ -13,7 +13,7 @@ errors.
 | `06-comic-script.md` | comic                                                                | pages, panels, captions, balloons, SFX                                                                                |
 
 `roundtrip/<name>.md` is what the editor writes back after loading `<name>.md`
-(recorded by `tests/view/editor.test.ts`; re-record with `UPDATE_GOLD=1` after a
+(recorded by `test/view/editor.test.ts`; re-record with `UPDATE_GOLD=1` after a
 Milkdown upgrade and review the diff). It documents Milkdown's normalisation:
 setext headings become ATX, `__strong__` becomes `**strong**`, entities are
 decoded, `~~~` and indented code become \`\`\` fences, `*`/`+` bullets become

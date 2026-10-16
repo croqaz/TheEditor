@@ -1,4 +1,4 @@
-// Generates tests/gold/04-stress-book.md: a deterministic ~2 MB "book" with
+// Generates test/gold/04-stress-book.md: a deterministic ~2 MB "book" with
 // chapters, headings, lists, quotes, code, HTML blocks, images and dialogue.
 // Usage: bun scripts/gen-stress-book.ts [targetBytes] [seed]
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -125,7 +125,7 @@ while (bytes < target) {
 	bytes = parts.reduce((n, p) => n + p.length + 1, 0);
 }
 
-const out = resolve(import.meta.dirname, "../tests/gold/04-stress-book.md");
+const out = resolve(import.meta.dirname, "../test/gold/04-stress-book.md");
 mkdirSync(dirname(out), { recursive: true });
 const text = `${parts.join("\n").replace(/\n{3,}/g, "\n\n")}\n`;
 writeFileSync(out, text, "utf8");

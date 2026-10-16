@@ -399,3 +399,69 @@ body.te-marks:not(.te-keep-caret) .te-caret {
   pointer-events: none;
   position: absolute;
 }
+
+/* ---- syntax colours (editor/highlight.ts) --------------------------------- */
+/* lowlight emits highlight.js class names as inline decorations; seven theme
+   colours cover them, each falling back to the text colour. */
+
+.te-doc .hljs-comment,
+.te-doc .hljs-quote {
+  color: var(--te-syn-comment, var(--te-muted));
+}
+
+.te-doc .hljs-keyword,
+.te-doc .hljs-selector-tag,
+.te-doc .hljs-built_in,
+.te-doc .hljs-type,
+.te-doc .hljs-doctag,
+.te-doc .hljs-meta {
+  color: var(--te-syn-keyword, var(--te-accent));
+}
+
+.te-doc .hljs-string,
+.te-doc .hljs-regexp,
+.te-doc .hljs-addition {
+  color: var(--te-syn-string, inherit);
+}
+
+.te-doc .hljs-number,
+.te-doc .hljs-literal,
+.te-doc .hljs-symbol,
+.te-doc .hljs-deletion {
+  color: var(--te-syn-number, inherit);
+}
+
+.te-doc .hljs-tag,
+.te-doc .hljs-name,
+.te-doc .hljs-section,
+.te-doc .hljs-selector-id,
+.te-doc .hljs-selector-class {
+  color: var(--te-syn-tag, inherit);
+}
+
+.te-doc .hljs-attr,
+.te-doc .hljs-attribute,
+.te-doc .hljs-variable,
+.te-doc .hljs-template-variable,
+.te-doc .hljs-property,
+.te-doc .hljs-subst,
+.te-doc .hljs-bullet {
+  color: var(--te-syn-attr, inherit);
+}
+
+.te-doc .hljs-title {
+  color: var(--te-syn-title, inherit);
+}
+
+.te-doc .hljs-emphasis {
+  font-style: italic;
+}
+
+.te-doc .hljs-strong {
+  font-weight: bold;
+}
+
+/* The collapsed front-matter stays muted; its colours appear while the caret is inside. */
+.te-frontmatter:not(.te-frontmatter--active) [class*='hljs-'] {
+  color: inherit;
+}

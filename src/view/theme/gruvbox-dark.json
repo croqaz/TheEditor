@@ -13,6 +13,13 @@
     "warn": "#fabd2f",
     "error": "#fb4934",
     "debug": "#8ec07c",
-    "mark": "#665c54"
+    "mark": "#665c54",
+    "syn-comment": "#928374",
+    "syn-keyword": "#fb4934",
+    "syn-string": "#b8bb26",
+    "syn-number": "#d3869b",
+    "syn-tag": "#fabd2f",
+    "syn-attr": "#83a598",
+    "syn-title": "#8ec07c"
   }
 }
