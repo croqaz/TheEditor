@@ -1,23 +1,23 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<!--
-			Offline by default. Only the page itself, blob/data URLs and loopback
-			(the local asset server and Electrobun's RPC socket) may be reached.
-			The online variant of this file adds https: to img/style/font/media.
-		-->
-		<meta
-			http-equiv="Content-Security-Policy"
-			content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' blob: data: http://127.0.0.1:*; connect-src 'self' ws://127.0.0.1:* http://127.0.0.1:* ws://localhost:* http://localhost:*; media-src 'self' blob: http://127.0.0.1:*; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
-		/>
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>TheEditor!</title>
-	</head>
-	<body>
-		<header id="tabs" class="te-bar te-bar--tabs" role="tablist"></header>
-		<main id="editor"></main>
-		<footer id="status" class="te-bar te-bar--status" role="status"></footer>
-		<script type="module" src="/main.ts"></script>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <!--
+    	Offline by default. Only the page itself, blob/data URLs and loopback
+    	(the local asset server and Electrobun's RPC socket) may be reached.
+    	The online variant of this file adds https: to img/style/font/media.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' blob: data: http://127.0.0.1:*; connect-src 'self' ws://127.0.0.1:* http://127.0.0.1:* ws://localhost:* http://localhost:*; media-src 'self' blob: http://127.0.0.1:*; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TheEditor!</title>
+  </head>
+  <body>
+    <header id="tabs" class="te-bar te-bar--tabs" role="tablist"></header>
+    <main id="editor"></main>
+    <footer id="status" class="te-bar te-bar--status" role="status"></footer>
+    <script type="module" src="/main.ts"></script>
+  </body>
 </html>

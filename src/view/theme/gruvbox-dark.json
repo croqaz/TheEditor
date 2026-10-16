@@ -1,18 +1,18 @@
 {
-	"name": "gruvbox-dark",
-	"dark": true,
-	"vars": {
-		"bg": "#282828",
-		"bg-raised": "#3c3836",
-		"fg": "#ebdbb2",
-		"muted": "#a89984",
-		"accent": "#d79921",
-		"rule": "#504945",
-		"selection": "#504945",
-		"caret": "#fe8019",
-		"warn": "#fabd2f",
-		"error": "#fb4934",
-		"debug": "#8ec07c",
-		"mark": "#665c54"
-	}
+  "name": "gruvbox-dark",
+  "dark": true,
+  "vars": {
+    "bg": "#282828",
+    "bg-raised": "#3c3836",
+    "fg": "#ebdbb2",
+    "muted": "#a89984",
+    "accent": "#d79921",
+    "rule": "#504945",
+    "selection": "#504945",
+    "caret": "#fe8019",
+    "warn": "#fabd2f",
+    "error": "#fb4934",
+    "debug": "#8ec07c",
+    "mark": "#665c54"
+  }
 }

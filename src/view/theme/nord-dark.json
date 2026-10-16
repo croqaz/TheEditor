@@ -1,18 +1,18 @@
 {
-	"name": "nord-dark",
-	"dark": true,
-	"vars": {
-		"bg": "#2e3440",
-		"bg-raised": "#3b4252",
-		"fg": "#d8dee9",
-		"muted": "#81a1c1",
-		"accent": "#88c0d0",
-		"rule": "#434c5e",
-		"selection": "#434c5e",
-		"caret": "#d8dee9",
-		"warn": "#ebcb8b",
-		"error": "#bf616a",
-		"debug": "#a3be8c",
-		"mark": "#4c566a"
-	}
+  "name": "nord-dark",
+  "dark": true,
+  "vars": {
+    "bg": "#2e3440",
+    "bg-raised": "#3b4252",
+    "fg": "#d8dee9",
+    "muted": "#81a1c1",
+    "accent": "#88c0d0",
+    "rule": "#434c5e",
+    "selection": "#434c5e",
+    "caret": "#d8dee9",
+    "warn": "#ebcb8b",
+    "error": "#bf616a",
+    "debug": "#a3be8c",
+    "mark": "#4c566a"
+  }
 }
