@@ -10,7 +10,7 @@ const fake = createFakeMain();
 setFakeMain(fake);
 
 const { TabManager } = await import('../../src/view/documents/tabs');
-const { shotCommands, withFullLayout } = await import('../../src/view/shots/commands');
+const { shotCommands } = await import('../../src/view/shots/commands');
 const { computeStats } = await import('../../src/view/stats/engine');
 
 const MARKDOWN = '---\nt: 1\n---\n\n# One\n\nfirst\n\n## Sub\n\nsecond\n\n# Two\n\nthird\n';
@@ -83,43 +83,6 @@ describe('te.measure', () => {
     expect(labelled.dir).toBe('/shots/before');
     expect(fake.artifacts.has('/shots/before/measure.json')).toBe(true);
     expect(JSON.parse(fake.artifacts.get('/shots/before/measure.json')!).blocks.length).toBe(plain.blocks.length);
-  });
-});
-
-describe('withFullLayout', () => {
-  test('forces every block visible while the callback runs, nests, and cleans up on errors', async () => {
-    const { tab, te } = await makeApp();
-    const body = document.body;
-    expect(body.classList.contains('te-full')).toBe(false);
-    const result = await withFullLayout(tab.pane, async () => {
-      expect(body.classList.contains('te-full')).toBe(true);
-      await withFullLayout(tab.pane, async () => expect(body.classList.contains('te-full')).toBe(true));
-      expect(body.classList.contains('te-full')).toBe(true); // the inner call does not undo the outer one
-      return 7;
-    });
-    expect(result).toBe(7);
-    expect(body.classList.contains('te-full')).toBe(false);
-    await expect(
-      withFullLayout(tab.pane, async () => {
-        throw new Error('boom');
-      })
-    ).rejects.toThrow('boom');
-    expect(body.classList.contains('te-full')).toBe(false);
-
-    // the picture commands measure and capture under full layout
-    const seen: boolean[] = [];
-    const requests = fake.main.request as Record<string, (params: unknown) => Promise<unknown>>;
-    const original = requests.writeArtifact!;
-    requests.writeArtifact = async params => {
-      seen.push(body.classList.contains('te-full'));
-      return original(params);
-    };
-    await te.measure({ label: 'full' });
-    await te.shot.screen({ label: 'full' });
-    requests.writeArtifact = original;
-    expect(seen.length).toBeGreaterThan(1);
-    expect(seen.every(Boolean)).toBe(true);
-    expect(body.classList.contains('te-full')).toBe(false);
   });
 });
 

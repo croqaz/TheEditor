@@ -20,70 +20,69 @@ export interface PromptHost {
   remember(line: string): void;
 }
 
-function cellsFor(model: StatusModel): { text: string; cls?: string }[] {
+/** Cells of one kind sit together; a middle dot separates the kinds (counts · caret position · state). */
+export type CellGroup = 'counts' | 'cursor' | 'state';
+
+const COUNT_FIELDS = new Set(['words', 'chars', 'lines', 'paragraphs', 'sentences', 'readtime', 'speaktime', 'headings', 'bytes']);
+
+export function groupOf(field: string): CellGroup {
+  if (COUNT_FIELDS.has(field)) return 'counts';
+  if (field === 'cursor') return 'cursor';
+  return 'state';
+}
+
+interface Cell {
+  text: string;
+  cls?: string;
+  group: CellGroup;
+}
+
+function cellFor(field: string, model: StatusModel): Omit<Cell, 'group'> {
   const s = model.stats;
   const sel = s?.selection;
-  const out: { text: string; cls?: string }[] = [];
-  for (const field of model.fields) {
-    switch (field) {
-      case 'words':
-        out.push(
-          sel
-            ? { text: `${formatCount(sel.words)} w`, cls: 'te-cell--selection' }
-            : { text: `${formatCount(s?.words ?? 0)} w` }
-        );
-        break;
-      case 'chars':
-        out.push(
-          sel
-            ? { text: `${formatCount(sel.chars)} c`, cls: 'te-cell--selection' }
-            : { text: `${formatCount(s?.chars ?? 0)} c` }
-        );
-        break;
-      case 'lines':
-        out.push(
-          sel
-            ? { text: `${formatCount(sel.lines)} l`, cls: 'te-cell--selection' }
-            : { text: `${formatCount(s?.lines ?? 0)} l` }
-        );
-        break;
-      case 'paragraphs':
-        out.push({ text: `${formatCount(s?.paragraphs ?? 0)} ¶` });
-        break;
-      case 'sentences':
-        out.push({ text: `${formatCount(s?.sentences ?? 0)} s` });
-        break;
-      case 'readtime':
-        out.push({ text: formatMinutes(s?.readMinutes ?? 0) });
-        break;
-      case 'speaktime':
-        out.push({ text: `speak ${formatMinutes(s?.speakMinutes ?? 0)}` });
-        break;
-      case 'headings':
-        out.push({ text: `${formatCount(s?.headings ?? 0)} h` });
-        break;
-      case 'bytes':
-        out.push({ text: `${formatCount(s?.bytes ?? 0)} B` });
-        break;
-      case 'cursor':
-        out.push({
-          text: model.cursor ? `Ln ${model.cursor.line}, Col ${model.cursor.column}` : '',
-        });
-        break;
-      case 'lang':
-        out.push({ text: model.lang });
-        break;
-      case 'net':
-        out.push({ text: model.online ? 'ONLINE' : 'OFFLINE' });
-        break;
-      case 'autosave':
-        out.push({ text: model.autosave ? 'autosave' : '' });
-        break;
-      default:
-        out.push({ text: field });
-    }
+  switch (field) {
+    case 'words':
+      return sel
+        ? { text: `${formatCount(sel.words)} w`, cls: 'te-cell--selection' }
+        : { text: `${formatCount(s?.words ?? 0)} w` };
+    case 'chars':
+      return sel
+        ? { text: `${formatCount(sel.chars)} c`, cls: 'te-cell--selection' }
+        : { text: `${formatCount(s?.chars ?? 0)} c` };
+    case 'lines':
+      return sel
+        ? { text: `${formatCount(sel.lines)} l`, cls: 'te-cell--selection' }
+        : { text: `${formatCount(s?.lines ?? 0)} l` };
+    case 'paragraphs':
+      return { text: `${formatCount(s?.paragraphs ?? 0)} ¶` };
+    case 'sentences':
+      return { text: `${formatCount(s?.sentences ?? 0)} s` };
+    case 'readtime':
+      return { text: formatMinutes(s?.readMinutes ?? 0) };
+    case 'speaktime':
+      return { text: `speak ${formatMinutes(s?.speakMinutes ?? 0)}` };
+    case 'headings':
+      return { text: `${formatCount(s?.headings ?? 0)} h` };
+    case 'bytes':
+      return { text: `${formatCount(s?.bytes ?? 0)} B` };
+    case 'cursor':
+      return { text: model.cursor ? `Ln ${model.cursor.line}, Col ${model.cursor.column}` : '' };
+    case 'lang':
+      return { text: model.lang };
+    case 'net':
+      return { text: model.online ? 'ONLINE' : 'OFFLINE' };
+    case 'autosave':
+      return { text: model.autosave ? 'autosave' : '' };
+    default:
+      return { text: field };
   }
-  return out;
+}
+
+/** Drawn in front of the prompt field (Ctrl+`). */
+export const PROMPT_SIGN = '❯';
+
+function cellsFor(model: StatusModel): Cell[] {
+  return model.fields.map(field => ({ ...cellFor(field, model), group: groupOf(field) }));
 }
 
 export function mountStatusBar(host: HTMLElement, prompt: PromptHost) {
@@ -103,7 +102,11 @@ export function mountStatusBar(host: HTMLElement, prompt: PromptHost) {
   const render = () => {
     if (promptInput) return;
     const cells = cellsFor(model).filter(c => c.text !== '');
-    const nodes = cells.map(c => el('span', `te-cell${c.cls ? ` ${c.cls}` : ''}`, c.text));
+    const nodes: HTMLElement[] = [];
+    cells.forEach((c, i) => {
+      if (i > 0 && cells[i - 1]!.group !== c.group) nodes.push(el('span', 'te-sep', '·'));
+      nodes.push(el('span', `te-cell${c.cls ? ` ${c.cls}` : ''}`, c.text));
+    });
     if (model.flash) {
       nodes.push(el('span', 'te-cell te-cell--spacer'));
       nodes.push(el('span', `te-cell ${model.flash.error ? 'te-cell--error' : 'te-cell--flash'}`, model.flash.text));
@@ -183,7 +186,10 @@ export function mountStatusBar(host: HTMLElement, prompt: PromptHost) {
         if (promptInput === input) api.closePrompt();
       });
       promptInput = input;
-      host.replaceChildren(el('span', 'te-cell', ':'), input);
+      // One cell holds the prompt sign and the field, so the bar's 2ch gap does not sit between them.
+      const cell = el('span', 'te-cell te-cell--prompt', PROMPT_SIGN);
+      cell.appendChild(input);
+      host.replaceChildren(cell);
       input.focus();
       input.setSelectionRange(input.value.length, input.value.length);
     },

@@ -38,23 +38,6 @@ function pad(n: number, width = 2) {
   return String(n).padStart(width, '0');
 }
 
-/**
- * Run `fn` with every block laid out (`body.te-full` turns `content-visibility: auto` off).
- * Without it, blocks that were never scrolled into view are one line tall in the live page,
- * so document coordinates below the viewport would not match the full-document render.
- */
-export async function withFullLayout<T>(pane: HTMLElement, fn: () => Promise<T>): Promise<T> {
-  const body = pane.ownerDocument.body;
-  const already = body.classList.contains('te-full');
-  body.classList.add('te-full');
-  void pane.offsetHeight; // force the layout before anything is measured or captured
-  try {
-    return await fn();
-  } finally {
-    if (!already) body.classList.remove('te-full');
-  }
-}
-
 export async function takeMeasure(ctx: AppContext, dir?: string, name = 'measure.json'): Promise<MeasureResult> {
   const result = measureDocument(ctx.view(), activePane(ctx));
   if (dir) {
@@ -157,15 +140,13 @@ export const shotCommands: Command<AppContext>[] = [
     usage: "te.measure({ label: 'before' })  → writes measure.json when a label is given",
     when: needsEditor,
     run: async (ctx, raw) => {
-      const pane = activePane(ctx);
-      return withFullLayout(pane, async () => {
-        const o = opts(raw);
-        const dir = o.label ? (await ctx.main.request.newShotDir({ label: o.label })).dir : undefined;
-        const result = await takeMeasure(ctx, dir);
-        console.table(measureTable(result));
-        if (dir) ctx.status.flash(`measure.json in ${dir}`);
-        return dir ? { ...result, dir } : result;
-      });
+      const o = opts(raw);
+      const dir = o.label ? (await ctx.main.request.newShotDir({ label: o.label })).dir : undefined;
+      const result = await takeMeasure(ctx, dir);
+      console.table(measureTable(result));
+      if (dir) ctx.status.flash(`measure.json in ${dir}`);
+      return dir ? { ...result, dir } : result;
+
     },
   },
   {
@@ -214,18 +195,17 @@ export const shotCommands: Command<AppContext>[] = [
     when: needsEditor,
     run: async (ctx, raw) => {
       const pane = activePane(ctx);
-      return withFullLayout(pane, async () => {
-        const o = opts(raw);
-        const dir = (await ctx.main.request.newShotDir({ label: o.label ?? 'screen' })).dir;
-        const aligned = alignScroll(pane, window.devicePixelRatio);
-        const shot = {
-          ...(await takeScreen(ctx, dir, { caret: o.caret })),
-          aligned,
-        };
-        await takeMeasure(ctx, dir);
-        ctx.status.flash(shot.ok ? `screen shot in ${dir}` : `screen shot failed: ${shot.error}`, !shot.ok);
-        return { dir, ...shot };
-      });
+      const o = opts(raw);
+      const dir = (await ctx.main.request.newShotDir({ label: o.label ?? 'screen' })).dir;
+      const aligned = alignScroll(pane, window.devicePixelRatio);
+      const shot = {
+        ...(await takeScreen(ctx, dir, { caret: o.caret })),
+        aligned,
+      };
+      await takeMeasure(ctx, dir);
+      ctx.status.flash(shot.ok ? `screen shot in ${dir}` : `screen shot failed: ${shot.error}`, !shot.ok);
+      return { dir, ...shot };
+
     },
   },
   {
@@ -234,15 +214,13 @@ export const shotCommands: Command<AppContext>[] = [
     usage: "te.shot.page({ label, width, backend: 'x11'|'wayland' })",
     when: needsEditor,
     run: async (ctx, raw) => {
-      const pane = activePane(ctx);
-      return withFullLayout(pane, async () => {
-        const o = opts(raw);
-        const dir = (await ctx.main.request.newShotDir({ label: o.label ?? 'page' })).dir;
-        const render = await takePage(ctx, dir, { ...o, height: undefined });
-        await takeMeasure(ctx, dir);
-        ctx.status.flash(render.ok ? `page render in ${dir}` : `render failed: ${render.error}`, !render.ok);
-        return { dir, ...render };
-      });
+      const o = opts(raw);
+      const dir = (await ctx.main.request.newShotDir({ label: o.label ?? 'page' })).dir;
+      const render = await takePage(ctx, dir, { ...o, height: undefined });
+      await takeMeasure(ctx, dir);
+      ctx.status.flash(render.ok ? `page render in ${dir}` : `render failed: ${render.error}`, !render.ok);
+      return { dir, ...render };
+
     },
   },
   {
@@ -285,40 +263,38 @@ export const shotCommands: Command<AppContext>[] = [
     usage: 'te.shot.element(3, { label, margin: 8 })',
     when: needsEditor,
     run: async (ctx, indexRaw, raw) => {
-      const pane = activePane(ctx);
-      return withFullLayout(pane, async () => {
-        const index = typeof indexRaw === 'number' ? indexRaw : 0;
-        const o = opts(raw);
-        const dir = (
-          await ctx.main.request.newShotDir({
-            label: o.label ?? `element-${index}`,
-          })
-        ).dir;
-        const measure = await takeMeasure(ctx, dir);
-        const block = measure.blocks[index];
-        if (!block) {
-          throw new Error(`no block ${index} (document has ${measure.blocks.length})`);
-        }
-        const render = await takePage(ctx, dir, { ...o, height: undefined });
-        if (!render.ok) throw new Error(render.error);
-        const margin = o.margin ?? 8;
-        const rect = scaleRect(
-          {
-            x: block.document.x - margin,
-            y: block.document.y - margin,
-            width: block.document.width + 2 * margin,
-            height: block.document.height + 2 * margin,
-          },
-          render.metrics.dpr
-        );
-        const crop = await ctx.main.request.cropImage({
-          path: render.path,
-          rect,
-          out: `${dir}/element-${pad(index, 3)}.png`,
-        });
-        ctx.status.flash(`block ${index} in ${crop.path}`);
-        return { dir, block, render: render.path, crop };
+      const index = typeof indexRaw === 'number' ? indexRaw : 0;
+      const o = opts(raw);
+      const dir = (
+        await ctx.main.request.newShotDir({
+          label: o.label ?? `element-${index}`,
+        })
+      ).dir;
+      const measure = await takeMeasure(ctx, dir);
+      const block = measure.blocks[index];
+      if (!block) {
+        throw new Error(`no block ${index} (document has ${measure.blocks.length})`);
+      }
+      const render = await takePage(ctx, dir, { ...o, height: undefined });
+      if (!render.ok) throw new Error(render.error);
+      const margin = o.margin ?? 8;
+      const rect = scaleRect(
+        {
+          x: block.document.x - margin,
+          y: block.document.y - margin,
+          width: block.document.width + 2 * margin,
+          height: block.document.height + 2 * margin,
+        },
+        render.metrics.dpr
+      );
+      const crop = await ctx.main.request.cropImage({
+        path: render.path,
+        rect,
+        out: `${dir}/element-${pad(index, 3)}.png`,
       });
+      ctx.status.flash(`block ${index} in ${crop.path}`);
+      return { dir, block, render: render.path, crop };
+
     },
   },
   {
@@ -328,113 +304,112 @@ export const shotCommands: Command<AppContext>[] = [
     when: needsEditor,
     run: async (ctx, raw) => {
       const pane = activePane(ctx);
-      return withFullLayout(pane, async () => {
-        const o = opts(raw) as Opts & { index?: number };
-        const dir = (await ctx.main.request.newShotDir({ label: o.label ?? 'verify' })).dir;
-        // Whole device pixels first: at dpr 1.75 a scroll offset of 718 CSS px is 1256.5 device px,
-        // which the compositor snaps, and every screen crop would be off by a pixel.
-        const aligned = alignScroll(pane, window.devicePixelRatio);
-        const measure = await takeMeasure(ctx, dir);
-        const screen = { ...(await takeScreen(ctx, dir)), aligned };
-        const render = await takePage(ctx, dir, { ...o, height: undefined });
-        const report: Record<string, unknown> = {
-          dir,
-          screen,
-          render,
-          blocks: [] as unknown[],
-        };
-        if (!screen.ok || !render.ok) {
-          await ctx.main.request.writeArtifact({
-            dir,
-            name: 'verify.json',
-            content: JSON.stringify(report, null, 2),
-          });
-          ctx.status.flash('verify incomplete; see verify.json', true);
-          return report;
-        }
-        const candidates = measure.blocks.filter(b => (o.index === undefined ? b.visible : b.index === o.index));
-        // The screen dpr is measured from a rounded frame width; when it agrees with WebKit's exact
-        // value the exact one is used for both crops so far-down blocks do not drift by a pixel.
-        const screenDpr = Math.abs(screen.dpr - render.metrics.dpr) < 0.02 ? render.metrics.dpr : screen.dpr;
-        const results: unknown[] = [];
-        for (const block of candidates) {
-          const name = `block-${pad(block.index, 3)}`;
-          const screenRect = scaleRect(block.viewport, screenDpr);
-          const pageRect = scaleRect(block.document, render.metrics.dpr);
-          const a = await ctx.main.request.cropImage({
-            path: screen.path,
-            rect: screenRect,
-            out: `${dir}/${name}-screen.png`,
-          });
-          const b = await ctx.main.request.cropImage({
-            path: render.path,
-            rect: pageRect,
-            out: `${dir}/${name}-page.png`,
-          });
-          const diff = await ctx.main.request.diffImages({
-            a: a.path,
-            b: b.path,
-            out: `${dir}/${name}-diff.png`,
-            tolerance: o.tolerance ?? 0,
-          });
-          const diffAA = await ctx.main.request.diffImages({
-            a: a.path,
-            b: b.path,
-            tolerance: AA_TOLERANCE,
-          });
-          results.push({
-            index: block.index,
-            type: block.type,
-            text: block.text,
-            screenRect,
-            pageRect,
-            screen: a.path,
-            page: b.path,
-            diff,
-            diffAA,
-          });
-        }
-        report.blocks = results;
-        report.summary = {
-          blocks: results.length,
-          tolerance: o.tolerance ?? 0,
-          identical: results.filter(r => (r as { diff: { mismatch: number } }).diff.mismatch === 0).length,
-          identicalWithinAA: results.filter(r => (r as { diffAA: { mismatch: number } }).diffAA.mismatch === 0).length,
-          screenDpr: screen.dpr,
-          screenDprUsed: screenDpr,
-          pageDpr: render.metrics.dpr,
-        };
+      const o = opts(raw) as Opts & { index?: number };
+      const dir = (await ctx.main.request.newShotDir({ label: o.label ?? 'verify' })).dir;
+      // Whole device pixels first: at dpr 1.75 a scroll offset of 718 CSS px is 1256.5 device px,
+      // which the compositor snaps, and every screen crop would be off by a pixel.
+      const aligned = alignScroll(pane, window.devicePixelRatio);
+      const measure = await takeMeasure(ctx, dir);
+      const screen = { ...(await takeScreen(ctx, dir)), aligned };
+      const render = await takePage(ctx, dir, { ...o, height: undefined });
+      const report: Record<string, unknown> = {
+        dir,
+        screen,
+        render,
+        blocks: [] as unknown[],
+      };
+      if (!screen.ok || !render.ok) {
         await ctx.main.request.writeArtifact({
           dir,
           name: 'verify.json',
           content: JSON.stringify(report, null, 2),
         });
-        console.table(
-          results.map(r => {
-            const x = r as {
-              index: number;
-              type: string;
-              diff: { mismatchPct: number; sameSize: boolean };
-              diffAA: { mismatchPct: number };
-            };
-            return {
-              '#': x.index,
-              type: x.type,
-              'mismatch %': Math.round(x.diff.mismatchPct * 100) / 100,
-              'beyond AA %': Math.round(x.diffAA.mismatchPct * 100) / 100,
-              sameSize: x.diff.sameSize,
-            };
-          })
-        );
-        const summary = report.summary as {
-          identical: number;
-          identicalWithinAA: number;
-        };
-        ctx.status.flash(
-          `verify: ${summary.identical}/${results.length} identical, ${summary.identicalWithinAA}/${results.length} within anti-aliasing, see ${dir}`
-        );
+        ctx.status.flash('verify incomplete; see verify.json', true);
         return report;
+      }
+      const candidates = measure.blocks.filter(b => (o.index === undefined ? b.visible : b.index === o.index));
+      // The screen dpr is measured from a rounded frame width; when it agrees with WebKit's exact
+      // value the exact one is used for both crops so far-down blocks do not drift by a pixel.
+      const screenDpr = Math.abs(screen.dpr - render.metrics.dpr) < 0.02 ? render.metrics.dpr : screen.dpr;
+      const results: unknown[] = [];
+      for (const block of candidates) {
+        const name = `block-${pad(block.index, 3)}`;
+        const screenRect = scaleRect(block.viewport, screenDpr);
+        const pageRect = scaleRect(block.document, render.metrics.dpr);
+        const a = await ctx.main.request.cropImage({
+          path: screen.path,
+          rect: screenRect,
+          out: `${dir}/${name}-screen.png`,
+        });
+        const b = await ctx.main.request.cropImage({
+          path: render.path,
+          rect: pageRect,
+          out: `${dir}/${name}-page.png`,
+        });
+        const diff = await ctx.main.request.diffImages({
+          a: a.path,
+          b: b.path,
+          out: `${dir}/${name}-diff.png`,
+          tolerance: o.tolerance ?? 0,
+        });
+        const diffAA = await ctx.main.request.diffImages({
+          a: a.path,
+          b: b.path,
+          tolerance: AA_TOLERANCE,
+        });
+        results.push({
+          index: block.index,
+          type: block.type,
+          text: block.text,
+          screenRect,
+          pageRect,
+          screen: a.path,
+          page: b.path,
+          diff,
+          diffAA,
+        });
+      }
+      report.blocks = results;
+      report.summary = {
+        blocks: results.length,
+        tolerance: o.tolerance ?? 0,
+        identical: results.filter(r => (r as { diff: { mismatch: number } }).diff.mismatch === 0).length,
+        identicalWithinAA: results.filter(r => (r as { diffAA: { mismatch: number } }).diffAA.mismatch === 0).length,
+        screenDpr: screen.dpr,
+        screenDprUsed: screenDpr,
+        pageDpr: render.metrics.dpr,
+      };
+      await ctx.main.request.writeArtifact({
+        dir,
+        name: 'verify.json',
+        content: JSON.stringify(report, null, 2),
       });
+      console.table(
+        results.map(r => {
+          const x = r as {
+            index: number;
+            type: string;
+            diff: { mismatchPct: number; sameSize: boolean };
+            diffAA: { mismatchPct: number };
+          };
+          return {
+            '#': x.index,
+            type: x.type,
+            'mismatch %': Math.round(x.diff.mismatchPct * 100) / 100,
+            'beyond AA %': Math.round(x.diffAA.mismatchPct * 100) / 100,
+            sameSize: x.diff.sameSize,
+          };
+        })
+      );
+      const summary = report.summary as {
+        identical: number;
+        identicalWithinAA: number;
+      };
+      ctx.status.flash(
+        `verify: ${summary.identical}/${results.length} identical, ${summary.identicalWithinAA}/${results.length} within anti-aliasing, see ${dir}`
+      );
+      return report;
+
     },
   },
   {

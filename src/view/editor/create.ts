@@ -1,6 +1,8 @@
-// Milkdown kit editor: CommonMark + GFM + history/clipboard/cursor/trailing/indent,
-// syntax colours (plugin-highlight with lowlight), the front-matter node, editable
-// raw HTML, the block caret and a change tracker. No Crepe, no toolbars.
+// Milkdown kit editor: CommonMark + GFM (the dialect; nothing else is interpreted) +
+// history/clipboard/cursor/trailing/indent, syntax colours (plugin-highlight with
+// lowlight), the front-matter node, editable raw HTML, code fences that keep their info
+// string, links that keep bare URLs bare, task toggling, the block caret and a change
+// tracker. No Crepe, no toolbars.
 import {
   defaultValueCtx,
   Editor,
@@ -15,14 +17,17 @@ import { history } from '@milkdown/kit/plugin/history';
 import { indent } from '@milkdown/kit/plugin/indent';
 import { trailing } from '@milkdown/kit/plugin/trailing';
 import { commonmark, htmlSchema, remarkHtmlTransformer } from '@milkdown/kit/preset/commonmark';
-import { gfm } from '@milkdown/kit/preset/gfm';
+import { gfm, remarkGFMPlugin } from '@milkdown/kit/preset/gfm';
 import { Plugin, PluginKey } from '@milkdown/kit/prose/state';
 import type { EditorView } from '@milkdown/kit/prose/view';
 import { $prose, getMarkdown, replaceAll } from '@milkdown/kit/utils';
 import { blockCaret } from './blockcaret';
+import { codeBlockWithMeta } from './codefence';
 import { frontmatter, skipFrontmatter } from './frontmatter';
 import { configureHighlight, highlight } from './highlight';
 import { html } from './html';
+import { AUTOLINK_LITERAL, autolinkLiteralHandler, linkWithLiterals } from './links';
+import { tasks } from './tasks';
 
 export interface EditorHooks {
   onDocChanged: () => void;
@@ -74,15 +79,21 @@ export async function createEditor(root: HTMLElement, markdown: string, hooks: E
     .config(ctx => {
       ctx.set(rootCtx, root);
       ctx.set(defaultValueCtx, markdown);
-      ctx.set(remarkStringifyOptionsCtx, {
-        bullet: '-',
-        rule: '-',
-        emphasis: '*',
-        strong: '*',
+      // `update`, not `set`: Milkdown's own handlers stay (they keep the emphasis and strong
+      // markers a file used, `_` or `*`, and trailing spaces); ours adds the bare-URL node.
+      ctx.update(remarkStringifyOptionsCtx, prev => ({
+        ...prev,
+        handlers: { ...prev.handlers, [AUTOLINK_LITERAL]: autolinkLiteralHandler },
+        bullet: '-' as const,
+        rule: '-' as const,
+        emphasis: '*' as const,
+        strong: '*' as const,
         fences: true,
-        listItemIndent: 'one',
+        listItemIndent: 'one' as const,
         incrementListMarker: true,
-      });
+      }));
+      // `~one tilde~` is not strikethrough here (only `~~two~~`), so `H~2~O` survives a save.
+      ctx.update(remarkGFMPlugin.options.key, prev => ({ ...prev, singleTilde: false }));
       ctx.update(editorViewOptionsCtx, prev => ({
         ...prev,
         attributes: {
@@ -97,6 +108,9 @@ export async function createEditor(root: HTMLElement, markdown: string, hooks: E
     .use(commonmarkWithoutHtml)
     .use(html)
     .use(gfm)
+    .use(codeBlockWithMeta)
+    .use(linkWithLiterals)
+    .use(tasks)
     .use(history)
     .use(clipboard)
     .use(cursor)

@@ -5,7 +5,7 @@
   --te-font: 'iA Writer Mono S', 'Iosevka', 'JetBrains Mono', 'Hack', 'DejaVu Sans Mono', ui-monospace, monospace;
   --te-size: 15px;
   --te-lh: 1.6;
-  --te-measure: 72ch;
+  --te-measure: 80ch;
   --te-bar-pad: 4px;
   --te-bar-h: calc(var(--te-size) * var(--te-lh) + 2 * var(--te-bar-pad));
 
@@ -154,6 +154,11 @@ body.te-zen .te-bar {
   color: var(--te-accent);
 }
 
+/* between cells of different kinds (counts · caret position · state) */
+.te-sep {
+  user-select: none;
+}
+
 .te-cell--flash {
   color: var(--te-fg);
 }
@@ -163,6 +168,10 @@ body.te-zen .te-bar {
 }
 
 .te-cell--spacer {
+  flex: 1;
+}
+
+.te-cell--prompt {
   flex: 1;
 }
 
@@ -208,7 +217,8 @@ body.te-marks .te-pane {
 }
 
 .te-pane__inner {
-  width: min(100%, var(--te-measure));
+  /* the measure is the text width; the 1ch side padding comes on top (border-box) */
+  width: min(100%, calc(var(--te-measure) + 2ch));
   margin: 0 auto;
   padding: calc(var(--te-size) * var(--te-lh) * 2) 1ch calc(50vh);
 }

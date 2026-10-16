@@ -7,6 +7,8 @@ describe('key combos', () => {
     expect(canonicalCombo('Shift+Ctrl+s')).toBe('Ctrl+Shift+S');
     expect(canonicalCombo('f12')).toBe('F12');
     expect(canonicalCombo('Ctrl+;')).toBe('Ctrl+;');
+    expect(canonicalCombo('ctrl+`')).toBe('Ctrl+`');
+    expect(comboFromParts({ key: '`', ctrl: true })).toBe('Ctrl+`');
     expect(comboFromParts({ key: 'Tab', ctrl: true, shift: true })).toBe('Ctrl+Shift+Tab');
     expect(comboFromParts({ key: 'ArrowLeft', alt: true })).toBe('Alt+Left');
   });

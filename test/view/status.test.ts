@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test } from 'bun:test';
 import { countText } from '../../src/shared/stats/count';
-import { mountStatusBar, type PromptHost } from '../../src/view/bars/status';
+import { groupOf, mountStatusBar, PROMPT_SIGN, type PromptHost } from '../../src/view/bars/status';
 
 function key(target: HTMLElement, key: string) {
   target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
@@ -83,6 +83,32 @@ describe('status bar', () => {
     expect(after.some(t => t?.startsWith('Ln'))).toBe(false);
   });
 
+  test('a middle dot separates counts, caret position and state, never cells of one kind', () => {
+    const bar = mountStatusBar(host, prompt);
+    bar.update({
+      stats: countText('One two three. Four five.', { wpm: 60 }),
+      cursor: { line: 3, column: 7 },
+      fields: ['chars', 'words', 'readtime', 'cursor', 'autosave', 'net'],
+      online: false,
+      autosave: true,
+    });
+    const texts = [...host.children].map(c => `${c.className}:${c.textContent}`);
+    expect(texts).toEqual([
+      'te-cell:25 c',
+      'te-cell:5 w',
+      'te-cell:5 s',
+      'te-sep:·',
+      'te-cell:Ln 3, Col 7',
+      'te-sep:·',
+      'te-cell:autosave',
+      'te-cell:OFFLINE',
+    ]);
+    // an empty cell (no caret) leaves no stray dot behind
+    bar.update({ cursor: null });
+    expect([...host.children].map(c => c.textContent)).toEqual(['25 c', '5 w', '5 s', '·', 'autosave', 'OFFLINE']);
+    expect(groupOf('custom')).toBe('state');
+  });
+
   test('selection stats take over the first cells in the accent colour', () => {
     const bar = mountStatusBar(host, prompt);
     const stats = countText('Lorem ipsum dolor sit amet.');
@@ -117,6 +143,9 @@ describe('status bar', () => {
     expect(bar.isPromptOpen()).toBe(true);
     const input = host.querySelector<HTMLInputElement>('input.te-prompt')!;
     expect(input.value).toBe('the');
+    // the sign and the field share one cell, so only the cell's 1ch gap sits between them
+    expect(input.parentElement?.className).toBe('te-cell te-cell--prompt');
+    expect(input.parentElement?.firstChild?.textContent).toBe(PROMPT_SIGN);
     bar.openPrompt(); // already open: just focuses
 
     // completion with several candidates shows a hint, with one fills the input

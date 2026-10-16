@@ -14,7 +14,7 @@ a remark plugin is added (see `PROPOSAL-v2.md` §15).
 
 Term one : Definition of term one.
 
-Term two : First definition. : Second definition with *emphasis*.
+Term two : First definition. : Second definition with _emphasis_.
 
 ## Abbreviations
 
@@ -42,7 +42,7 @@ $$
 
 ## Highlight, superscript, subscript, insert
 
-\==highlighted text==, x^2^ and H~~2~~O, ++inserted++.
+\==highlighted text==, x^2^ and H\~2\~O, ++inserted++.
 
 ## Admonitions and directives
 
@@ -54,7 +54,7 @@ $$
 
 ## Fenced div and code attributes
 
-```{.python
+```{.python .numberLines startFrom="10"}
 def f():
     return 42
 ```

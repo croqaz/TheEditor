@@ -4,8 +4,8 @@
 import { z } from 'zod';
 
 export const DEFAULT_STATUS_FIELDS = [
-  'words',
   'chars',
+  'words',
   'lines',
   'paragraphs',
   'readtime',
@@ -13,6 +13,21 @@ export const DEFAULT_STATUS_FIELDS = [
   'autosave',
   'net',
 ] as const;
+
+/** Configs written before 2026-10-16 carry `words, chars`; the owner reads them better the other way round. */
+export function statusFieldsInCurrentOrder(fields: string[]): string[] {
+  const out = [...fields];
+  for (let i = 0; i + 1 < out.length; i++) {
+    if (out[i] === 'words' && out[i + 1] === 'chars') {
+      out[i] = 'chars';
+      out[i + 1] = 'words';
+    }
+  }
+  return out;
+}
+
+/** Text width in characters; the column is this wide plus 1ch of padding on each side. */
+export const DEFAULT_MEASURE = 80;
 
 export const ConfigSchema = z.object({
   __version: z.literal(1).default(1),
@@ -24,7 +39,13 @@ export const ConfigSchema = z.object({
       family: z.string().default('iA Writer Mono S'),
       size: z.number().min(8).max(48).default(15),
       leading: z.number().min(1).max(3).default(1.6),
-      measure: z.number().min(40).max(140).default(72),
+      // Line length in characters. Configs written before 2026-10-16 carry the old default, 72.
+      measure: z
+        .number()
+        .min(40)
+        .max(140)
+        .default(DEFAULT_MEASURE)
+        .transform(measure => (measure === 72 ? DEFAULT_MEASURE : measure)),
     })
     .prefault({}),
   window: z
@@ -47,7 +68,7 @@ export const ConfigSchema = z.object({
   stats: z
     .object({
       wpm: z.number().min(50).max(1000).default(240),
-      fields: z.array(z.string()).default([...DEFAULT_STATUS_FIELDS]),
+      fields: z.array(z.string()).default([...DEFAULT_STATUS_FIELDS]).transform(statusFieldsInCurrentOrder),
     })
     .prefault({}),
   spell: z

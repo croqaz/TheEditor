@@ -1,5 +1,12 @@
 import { describe, expect, test } from 'bun:test';
-import { ConfigSchema, defaultConfig, defaultSession, SessionSchema } from '../src/shared/config-schema';
+import {
+  ConfigSchema,
+  DEFAULT_STATUS_FIELDS,
+  defaultConfig,
+  defaultSession,
+  SessionSchema,
+  statusFieldsInCurrentOrder,
+} from '../src/shared/config-schema';
 
 describe('ConfigSchema', () => {
   test('fills every default from an empty object', () => {
@@ -21,6 +28,21 @@ describe('ConfigSchema', () => {
     expect(config.theme).toBe('nord-light');
     expect(config.font.size).toBe(17);
     expect(config.font.leading).toBe(1.6);
+  });
+
+  test('status cells start with chars, words; a saved words, chars pair is read the other way round', () => {
+    expect(DEFAULT_STATUS_FIELDS.slice(0, 2)).toEqual(['chars', 'words']);
+    expect(defaultConfig().stats.fields).toEqual([...DEFAULT_STATUS_FIELDS]);
+    const saved = ConfigSchema.parse({ stats: { fields: ['words', 'chars', 'lines', 'cursor', 'net'] } });
+    expect(saved.stats.fields).toEqual(['chars', 'words', 'lines', 'cursor', 'net']);
+    expect(statusFieldsInCurrentOrder(['chars', 'words', 'net'])).toEqual(['chars', 'words', 'net']);
+    expect(statusFieldsInCurrentOrder(['words', 'net', 'chars'])).toEqual(['words', 'net', 'chars']);
+  });
+
+  test('the measure defaults to 80 characters; a saved 72, the old default, reads as 80', () => {
+    expect(defaultConfig().font.measure).toBe(80);
+    expect(ConfigSchema.parse({ font: { measure: 72 } }).font.measure).toBe(80);
+    expect(ConfigSchema.parse({ font: { measure: 100 } }).font.measure).toBe(100);
   });
 
   test('rejects out-of-range values', () => {

@@ -4,7 +4,7 @@
 import { comboFromParts, type CommandRegistry } from '../shared/commands';
 import type { AppContext } from './commands/context';
 
-const ALWAYS = new Set(['F12', 'Ctrl+;', 'F11', 'Ctrl+Q', 'Ctrl+Tab', 'Ctrl+Shift+Tab']);
+const ALWAYS = new Set(['F12', 'Ctrl+`', 'F11', 'Ctrl+Q', 'Ctrl+Tab', 'Ctrl+Shift+Tab']);
 
 export function installKeymap(registry: CommandRegistry<AppContext>, ctx: AppContext) {
   window.addEventListener(

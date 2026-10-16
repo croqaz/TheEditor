@@ -1,10 +1,12 @@
 // Built-in commands. Every entry is reachable as te.<id>() from the F12
 // console, from its key combo, and from the status-bar prompt.
-import { TextSelection } from '@milkdown/kit/prose/state';
+import { AllSelection, TextSelection } from '@milkdown/kit/prose/state';
 import type { Command } from '../../shared/commands';
+import { DEFAULT_MEASURE } from '../../shared/config-schema';
 import { formatMinutes } from '../../shared/stats/count';
 import { isOverwrite, pageHasFocus, setOverwrite } from '../editor/blockcaret';
 import { goToEnd, goToStart } from '../editor/frontmatter';
+import { clearTask, toggleTask } from '../editor/tasks';
 import { lineOps, textOps, transformSelectedLines, transformSelectionText } from '../editor/transforms';
 import { cursorPosition, positionAt } from '../stats/engine';
 import { applyCaret, applyFont, applyTheme, listThemes } from '../theme';
@@ -195,6 +197,42 @@ export const builtinCommands: Command<AppContext>[] = [
     },
   },
 
+  // ---- editing -----------------------------------------------------------
+  {
+    id: 'edit.selectAll',
+    title: 'Select the whole document (what Ctrl+A does)',
+    when: needsEditor,
+    run: ctx => {
+      const view = ctx.view();
+      view.dispatch(view.state.tr.setSelection(new AllSelection(view.state.doc)));
+      view.focus();
+      return { from: 0, to: view.state.doc.content.size };
+    },
+  },
+
+  {
+    id: 'task.toggle',
+    title: 'List item at the caret: plain → [ ] → [x] → [ ]. Ctrl+Enter in the editor, or click the marker',
+    when: needsEditor,
+    run: ctx => {
+      const view = ctx.view();
+      const done = toggleTask(view.state, view.dispatch);
+      view.focus();
+      return done;
+    },
+  },
+  {
+    id: 'task.clear',
+    title: 'Task item at the caret back to a plain list item',
+    when: needsEditor,
+    run: ctx => {
+      const view = ctx.view();
+      const done = clearTask(view.state, view.dispatch);
+      view.focus();
+      return done;
+    },
+  },
+
   // ---- text transforms (selection or word at caret) --------------------
   {
     id: 'text.lowercase',
@@ -304,7 +342,7 @@ export const builtinCommands: Command<AppContext>[] = [
     run: async (ctx, measure) => {
       const font = {
         ...ctx.config.get().font,
-        measure: typeof measure === 'number' ? measure : 72,
+        measure: typeof measure === 'number' ? measure : DEFAULT_MEASURE,
       };
       applyFont(font);
       await ctx.patchConfig({ font });
@@ -384,7 +422,7 @@ export const builtinCommands: Command<AppContext>[] = [
   {
     id: 'view.prompt',
     title: 'Open the command prompt in the status bar',
-    keys: ['Ctrl+;'],
+    keys: ['Ctrl+`'],
     run: ctx => ctx.status.openPrompt(),
   },
   {
@@ -411,8 +449,7 @@ export const builtinCommands: Command<AppContext>[] = [
   },
   {
     id: 'debug.blocks',
-    title:
-      'Per top-level block: whether WebKit currently skips it (content-visibility), its rect, and whether its text has boxes',
+    title: 'Per top-level block: its rect, whether it is on screen, and whether its text has layout boxes',
     when: needsEditor,
     run: ctx => {
       const view = ctx.view();
@@ -423,7 +460,6 @@ export const builtinCommands: Command<AppContext>[] = [
         const dom = view.nodeDOM(offset);
         if (!(dom instanceof HTMLElement)) return;
         const rect = dom.getBoundingClientRect();
-        const check = (dom as HTMLElement & { checkVisibility?: (o: object) => boolean }).checkVisibility;
         const text =
           dom.querySelector('.te-frontmatter__yaml, code, p, li, h1, h2, h3, h4, h5, h6') ??
           dom.firstElementChild ??
@@ -436,9 +472,7 @@ export const builtinCommands: Command<AppContext>[] = [
           y: Math.round((rect.top - paneRect.top) * 100) / 100,
           h: Math.round(rect.height * 100) / 100,
           onScreen: rect.bottom > paneRect.top && rect.top < paneRect.bottom,
-          skipped: typeof check === 'function' ? !check.call(dom, { contentVisibilityAuto: true }) : null,
           textBoxes: range.getClientRects().length,
-          cv: getComputedStyle(dom).getPropertyValue('content-visibility'),
         });
       });
       console.table(rows);

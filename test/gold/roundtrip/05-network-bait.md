@@ -39,7 +39,7 @@ placeholder and the audit must record zero non-loopback connections. With
 
 ## Links (allowed to exist, never fetched or prefetched)
 
-[Example](https://example.com) · <https://example.org> · <https://example.net>
+[Example](https://example.com) · <https://example.org> · https://example.net
 
 ## Local image for contrast
 

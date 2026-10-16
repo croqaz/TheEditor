@@ -6,7 +6,7 @@ reachable three ways:
 - **F12 console**: `te.<id>(...)`, for example `te.theme("nord-light")`, `te.lines.sort()`.
   `te.help()` lists everything; `te.help("text")` lists one namespace.
 - **Key combo**: listed next to each command below.
-- **Status-bar prompt**: `Ctrl+;` turns the bottom bar into a prompt. Type the id and
+- **Status-bar prompt**: Ctrl+` (the backquote key, one hand) turns the bottom bar into a prompt behind a `❯`. Type the id and
   space-separated arguments: `theme nord-light`, `tabs.go 2`, `status.fields ["words","net"]`.
   `Tab` completes, `Up`/`Down` walks history, `Esc` closes.
 
@@ -27,6 +27,9 @@ The source of truth is `src/view/commands/builtin.ts`.
 | `goto(line, col?)` | Ctrl+G | move the caret to a line and column as counted in the status bar (list items and hard breaks are lines); the key opens the prompt with `goto ` typed |
 | `goto.start()` | Ctrl+Home | caret to the start of the text; pressed again there, to the start of the front-matter |
 | `goto.end()` | Ctrl+End | caret to the absolute end of the text |
+| `edit.selectAll()` | (Ctrl+A natively) | select the whole document, for scripted runs |
+| `task.toggle()` | Ctrl+Enter in the editor, or a click on the marker | list item at the caret: plain → `[ ]` → `[x]` → `[ ]` |
+| `task.clear()` | | task item at the caret back to a plain list item |
 | `tabs.next()` / `tabs.prev()` | Ctrl+Tab / Ctrl+Shift+Tab | cycle tabs |
 | `tabs.go(n)` | Ctrl+1 … Ctrl+9 | activate tab n |
 | `tabs.moveLeft()` / `tabs.moveRight()` | Alt+Left / Alt+Right | reorder |
@@ -39,11 +42,11 @@ The source of truth is `src/view/commands/builtin.ts`.
 | `font(family?, size?, leading?)` | | set or print font settings; any installed monospace font works |
 | `caret(style?)` | | `block` (default: one hollow character cell, filled with the glyph inverted while overwriting) or `bar` (WebKit's 1 px caret); no argument prints it |
 | `overwrite(on?)` | Insert | overwrite mode: typing replaces the character under the caret; no argument toggles |
-| `font.measure(ch)` | | line length in characters |
+| `font.measure(ch)` | | text width in characters (default 80, 40 to 140; the column adds 1ch of padding on each side) |
 | `autosave(on?)` | | turn autosave on or off; no argument prints the state |
 | `stats()` | | statistics table for the active document |
 | `stats.wpm(n)` | | words per minute for time-to-read |
-| `status.fields([...])` | | choose status cells: `words chars lines paragraphs sentences readtime speaktime headings bytes cursor lang autosave net` |
+| `status.fields([...])` | | choose status cells, in order: `chars words lines paragraphs sentences readtime speaktime headings bytes cursor lang autosave net` (anything else is shown as typed). A middle dot separates the kinds: counts · caret position · state. A saved `words, chars` pair is read as `chars, words` |
 | `measure({ label? })` | | DOM coordinates of every block and its line boxes (CSS px, pane- and document-relative); with a label, writes `measure.json` |
 | `shot.screen({ label?, caret? })` | | picture of the visible window cropped to the editor pane (Spectacle on KDE, Electrobun screen capture elsewhere); the block caret is left out unless `caret: true` |
 | `shot.page({ label?, width?, backend? })` | | the whole document rendered by WebKitGTK through `scripts/te-snap.py`, independent of the window |
@@ -52,11 +55,11 @@ The source of truth is `src/view/commands/builtin.ts`.
 | `shot.verify({ label?, index?, tolerance? })` | | screen vs render: crops every visible block from both pictures and pixel-diffs them; writes `verify.json` |
 | `shot.crop(path, x, y, w, h, out?)` / `shot.diff(a, b, out?)` | | work on existing pictures |
 | `view.devtools()` | F12 | toggle the WebKit inspector |
-| `view.prompt()` | Ctrl+; | open the status-bar prompt |
+| `view.prompt()` | Ctrl+` | open the status-bar prompt |
 | `view.zen()` | Ctrl+Shift+Z | hide or show both bars |
 | `view.fullscreen()` | F11 | toggle fullscreen |
 | `debug.focus()` | | where keyboard focus is: `page` (WebKit widget focus; keys only work when true), `editor`, `activeElement` |
-| `debug.blocks()` | | per top-level block: position, height, on screen, whether its text has layout boxes (WebKit skips off-screen blocks), computed `content-visibility` |
+| `debug.blocks()` | | per top-level block: position, height, on screen, whether its text has layout boxes |
 | `app.wait(ms)` | | pause, for scripted `--run` sequences |
 | `debug.boxes(on?)` | | overlay the block and line boxes `te.measure()` reports on the active document; `{ blocks, lines, labels, from }` picks what to draw or loads a saved `measure.json` |
 | `app.info()` / `app.config()` / `app.profile()` | | runtime info / current config / active profile directories |
@@ -84,9 +87,9 @@ diffs, `measure.json`, and `verify.json`.
 `document` (CSS px from the document's top-left), `lines` (line boxes), `visible`; plus `dpr`, the pane
 size and scroll offset, and the computed font. Multiply by `dpr` to get pixel coordinates in the pictures.
 
-While these commands run, every block is laid out (`body.te-full` suspends `content-visibility: auto`),
-so document coordinates are exact even for blocks that were never scrolled into view, and the render
-does the same. `shot.screen` and `shot.verify` first move the pane's scroll offset to the nearest whole
+Every block is always laid out (the page uses no `content-visibility`), so document coordinates are
+exact even for blocks that were never scrolled into view, and the render matches.
+`shot.screen` and `shot.verify` first move the pane's scroll offset to the nearest whole
 device pixel (multiples of 4 CSS px at ratio 1.75) and report it as `aligned: { before, after, step }`;
 otherwise the compositor's snapping shifts every crop by a pixel.
 

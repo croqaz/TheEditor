@@ -184,10 +184,10 @@ describe('built-in commands', () => {
       family: 'Iosevka',
       size: 16,
       leading: 1.7,
-      measure: 72,
+      measure: 80,
     });
     expect(await te.font.measure(64)).toBe(64);
-    expect(await te.font.measure()).toBe(72);
+    expect(await te.font.measure()).toBe(80);
     expect(config.get().font.family).toBe('Iosevka');
   });
 
@@ -229,6 +229,17 @@ describe('built-in commands', () => {
     expect(ctx.view().state.selection.$from.parent.textContent).toBe('alpha');
     expect(te.goto.start()).toEqual({ line: 2, column: 1 });
     expect(ctx.view().state.selection.$from.parent.type.name).toBe('frontmatter');
+  });
+
+  test('edit.selectAll selects the whole document', async () => {
+    const { te, ctx, tabs } = await makeApp();
+    await tabs.newTab('alpha\n\nomega\n');
+    const size = ctx.view().state.doc.content.size;
+    expect(te.edit.selectAll()).toEqual({ from: 0, to: size });
+    const { selection } = ctx.view().state;
+    expect(selection.from).toBe(0);
+    expect(selection.to).toBe(size);
+    expect(selection.constructor.name).toBe('AllSelection');
   });
 
   test('overwrite mode toggles through the command and reports in the status bar', async () => {

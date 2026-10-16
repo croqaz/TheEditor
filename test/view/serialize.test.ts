@@ -60,7 +60,6 @@ describe('documentHtml', () => {
     expect(html).toContain('--te-bg: #111;');
     expect(html).toContain('<style>.x{}</style>');
     expect(html).toContain(RENDER_CSS.trim().split('\n')[0]!);
-    expect(html).toContain('content-visibility: visible'); // the render lays out every block
     expect(html).toContain('class="te-render te-marks te-page"');
     expect(html).toContain('width:640px;--te-page-height:480px;');
     expect(html).toMatch(/<h1[^>]*>One<\/h1>/);

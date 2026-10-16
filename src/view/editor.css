@@ -19,23 +19,10 @@ body[data-caret='bar'] .te-doc {
 
 .te-doc > * {
   margin: 0 0 calc(var(--te-size) * var(--te-lh));
-  /* Skip layout and paint for off-screen blocks (spike S3: measured on the 2 MB book). */
-  content-visibility: auto;
-  contain-intrinsic-size: auto 1lh;
-}
-
-/* While measuring or taking pictures every block is laid out, so document coordinates are
-   exact and the live page matches the full-document render (shots/commands.ts). */
-body.te-full .te-doc > * {
-  content-visibility: visible;
-}
-
-/* The front-matter is always the first block, so skipping it saves nothing, and WebKit's
-   relevancy for it went stale when the caret left it right after load or a tab switch
-   (the block kept its height but nothing inside was painted; Screenshot_20261016_183522.png). */
-.te-doc > .te-frontmatter {
-  content-visibility: visible;
-  contain-intrinsic-size: none;
+  /* No `content-visibility: auto` here: WebKitGTK 2.54 left on-screen blocks unpainted
+     (front-matter, then the H1) and kept a stale selection highlight on blocks that were
+     off screen when Ctrl+A was undone (docs/reports/2026-10-16-content-visibility-and-gfm.md).
+     It saved about 2.5 s of first layout on the 2 MB book and nothing on ordinary files. */
 }
 
 .te-doc > *:last-child {
@@ -167,27 +154,43 @@ body.te-full .te-doc > * {
   position: relative;
 }
 
-.te-doc li[data-item-type='task']::before {
-  content: none;
+/* Task items: Milkdown keeps the state in `data-checked` (no checkbox element); the marker is
+   drawn here and toggled by editor/tasks.ts (Ctrl+Enter, te.task.toggle(), or a click on it). */
+.te-doc ul:has(> li[data-item-type='task']) {
+  padding-left: 4ch;
 }
 
-.te-doc li[data-item-type='task'] input[type='checkbox'] {
-  appearance: none;
+.te-doc li[data-item-type='task']::before {
+  content: '[ ]';
   position: absolute;
-  margin-left: -3ch;
-  width: 2ch;
-  height: 1lh;
+  right: 100%;
+  margin-right: 1ch;
+  white-space: pre;
+  color: var(--te-muted);
   cursor: pointer;
 }
 
-.te-doc li[data-item-type='task'] input[type='checkbox']::before {
-  content: '[ ]';
-  color: var(--te-muted);
-}
-
-.te-doc li[data-item-type='task'] input[type='checkbox']:checked::before {
+.te-doc li[data-item-type='task'][data-checked='true']::before {
   content: '[x]';
   color: var(--te-accent);
+}
+
+/* In an ordered list the number (Milkdown's data-label, "1.") and the box share the marker;
+   the browser's own number would sit under the box. */
+.te-doc ol:has(> li[data-item-type='task']) {
+  padding-left: 7ch;
+}
+
+.te-doc ol > li[data-item-type='task'] {
+  list-style: none;
+}
+
+.te-doc ol > li[data-item-type='task']::before {
+  content: attr(data-label) ' [ ]';
+}
+
+.te-doc ol > li[data-item-type='task'][data-checked='true']::before {
+  content: attr(data-label) ' [x]';
 }
 
 .te-doc hr {
@@ -222,6 +225,14 @@ body.te-full .te-doc > * {
 .te-doc th {
   font-weight: 700;
   background: var(--te-bg-raised);
+  vertical-align: middle;
+}
+
+/* The paragraph Milkdown puts in every cell kept the browser's bottom margin, which made the
+   rows tall and left the header text sitting at the top. */
+.te-doc th > p,
+.te-doc td > p {
+  margin: 0;
 }
 
 .te-doc del {

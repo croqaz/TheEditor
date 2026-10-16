@@ -9,7 +9,6 @@ body.te-render #editor { position: static; overflow: visible; }
 body.te-render .te-pane { position: static; inset: auto; overflow: visible; height: auto; }
 body.te-render .te-pane__inner { padding-bottom: calc(var(--te-size) * var(--te-lh) * 2); }
 body.te-render .te-doc { caret-color: transparent; }
-body.te-render .te-doc > * { content-visibility: visible; contain-intrinsic-size: none; }
 body.te-render.te-marks .te-pane { outline: 4px solid #ff00ff; outline-offset: -4px; }
 body.te-render.te-page { height: var(--te-page-height); overflow: hidden; }
 `;

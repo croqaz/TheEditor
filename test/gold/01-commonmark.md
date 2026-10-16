@@ -21,24 +21,26 @@ flavour: commonmark
 
 # Closing hashes are allowed
 
-Paragraph with _emphasis_, _also emphasis_, **strong**, **also strong**,
-_**both**_, `inline code`, ``code with ` backtick``, and a hard line break at
+Paragraph with *emphasis*, *also emphasis*, **strong**, **also strong**,
+***both***, `inline code`, ``code with ` backtick``, and a hard line break at
 the end of this line\
 followed by a backslash break, and two trailing spaces\
 followed by a spaces break.
 
 Soft breaks join these two lines into one paragraph.
 
-Intraword emphasis: snake_case_word stays, but *this*is_emphasised_ partially.
-Escapes: \*not emphasis\*, \# not a heading, \`not code\`, 1\. not a list.
+Intraword emphasis: snake_case_word stays, but *this*is_emphasised\_ partially.
+Escapes: \*not emphasis\*, # not a heading, \`not code\`, 1. not a list.
 
-Entities: &copy; &amp; &lt; &gt; &quot; &#35; &#x1F600; &nbsp;end.
-
----
+Entities: © & < > " # 😀 end.
 
 ---
 
 ---
+
+---
+
+\-----✂️-----
 
 - Tight bullet one
 - Tight bullet two with a continuation line
@@ -83,8 +85,10 @@ Entities: &copy; &amp; &lt; &gt; &quot; &#35; &#x1F600; &nbsp;end.
 
 > Lazy continuation works here too.
 
-    Indented code block
-    second line
+```
+Indented code block
+second line
+```
 
 ```
 Fenced code without language
@@ -106,20 +110,14 @@ nested fence inside a longer fence
 ```
 ````
 
-Links: [inline](https://example.com), [with title](https://example.com 'Title'),
-[reference][ref], [collapsed][collapsed], [shortcut],
+Links: [inline](https://example.com), [with title](https://example.com "Title"),
+[reference](https://example.com/ref "Reference title"), [collapsed](https://example.com/collapsed), [shortcut](https://example.com/shortcut),
 <https://autolink.example>, <mailto:someone@example.com>,
-[relative](./02-gfm.md), [anchor](#heading-level-1), [empty](<>).
-
-[ref]: https://example.com/ref 'Reference title'
-[collapsed]: https://example.com/collapsed
-[shortcut]: https://example.com/shortcut
+[relative](./02-gfm.md), [anchor](#heading-level-1), [empty]().
 
 Images: ![alt text](img/sample.png),
-![with title](img/sample.png 'Image title'), ![reference image][img],
+![with title](img/sample.png "Image title"), ![reference image](img/sample.png),
 ![](img/no-alt.png).
-
-[img]: img/sample.png
 
 Raw inline HTML: <kbd>Ctrl</kbd>+<kbd>S</kbd>, a <span class="note">span</span>,
 <br> and a comment <!-- hidden -->.

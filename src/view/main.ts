@@ -226,7 +226,7 @@ async function boot() {
       info.online ? 'online' : 'offline'
     }, dpr ${window.devicePixelRatio}, ${window.innerWidth}x${window.innerHeight}`
   );
-  console.log('TheEditor! commands: te.help()  ·  prompt: Ctrl+;  ·  devtools: F12');
+  console.log('TheEditor! commands: te.help()  ·  prompt: Ctrl+`  ·  devtools: F12');
 }
 
 boot().catch((error: unknown) => {

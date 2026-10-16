@@ -21,8 +21,9 @@ flavour: commonmark
 
 # Closing hashes are allowed
 
-Paragraph with *emphasis*, *also emphasis*, _emphasis 2_, _also emphasis 2_, **strong**, **also strong**,
-***both***, `inline code`, ``code with ` backtick``, and a hard line break at the end of this line\
+Paragraph with *emphasis*, *also emphasis*, **strong**, **also strong**,
+***both***, `inline code`, ``code with ` backtick``, and a hard line break at
+the end of this line\
 followed by a backslash break, and two trailing spaces\
 followed by a spaces break.
 
@@ -38,6 +39,8 @@ Entities: © & < > " # 😀  end.
 ---
 
 ---
+
+\-----✂️-----
 
 - Tight bullet one
 - Tight bullet two with a continuation line
@@ -108,7 +111,7 @@ nested fence inside a longer fence
 ````
 
 Links: [inline](https://example.com), [with title](https://example.com "Title"),
-[reference](https://example.com/ref 'Reference title'), [collapsed](https://example.com/collapsed), [shortcut](https://example.com/shortcut),
+[reference](https://example.com/ref "Reference title"), [collapsed](https://example.com/collapsed), [shortcut](https://example.com/shortcut),
 <https://autolink.example>, <mailto:someone@example.com>,
 [relative](./02-gfm.md), [anchor](#heading-level-1), [empty]().
 
