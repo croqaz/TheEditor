@@ -1,0 +1,202 @@
+/* TheEditor! base stylesheet. Everything is monospace; hierarchy comes from
+   weight, case, spacing and rules. Colours come from the twelve theme tokens. */
+
+:root {
+	--te-font: "iA Writer Mono S", "Iosevka", "JetBrains Mono", "Hack", "DejaVu Sans Mono", ui-monospace, monospace;
+	--te-size: 15px;
+	--te-lh: 1.6;
+	--te-measure: 72ch;
+	--te-bar-pad: 4px;
+	--te-bar-h: calc(var(--te-size) * var(--te-lh) + 2 * var(--te-bar-pad));
+
+	/* theme tokens (gruvbox-dark defaults, replaced at runtime) */
+	--te-bg: #282828;
+	--te-bg-raised: #3c3836;
+	--te-fg: #ebdbb2;
+	--te-muted: #a89984;
+	--te-accent: #d79921;
+	--te-rule: #504945;
+	--te-selection: #504945;
+	--te-caret: #fe8019;
+	--te-warn: #fabd2f;
+	--te-error: #fb4934;
+	--te-debug: #8ec07c;
+	--te-mark: #665c54;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	height: 100%;
+	margin: 0;
+}
+
+body {
+	display: grid;
+	grid-template-rows: var(--te-bar-h) 1fr var(--te-bar-h);
+	height: 100vh;
+	overflow: hidden;
+	background: var(--te-bg);
+	color: var(--te-fg);
+	font-family: var(--te-font);
+	font-size: var(--te-size);
+	line-height: var(--te-lh);
+	font-variant-ligatures: none;
+	-webkit-font-smoothing: antialiased;
+}
+
+body.te-zen {
+	grid-template-rows: 0 1fr 0;
+}
+
+body.te-zen .te-bar {
+	display: none;
+}
+
+::selection {
+	background: var(--te-selection);
+}
+
+/* ---- the two bars ------------------------------------------------------- */
+
+.te-bar {
+	display: flex;
+	align-items: center;
+	gap: 2ch;
+	height: var(--te-bar-h);
+	padding: var(--te-bar-pad) 1ch;
+	background: var(--te-bg-raised);
+	color: var(--te-muted);
+	white-space: nowrap;
+	overflow-x: auto;
+	overflow-y: hidden;
+	scrollbar-width: none;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+.te-bar::-webkit-scrollbar {
+	display: none;
+}
+
+.te-bar--tabs {
+	border-bottom: 1px solid var(--te-rule);
+}
+
+.te-bar--status {
+	border-top: 1px solid var(--te-rule);
+}
+
+.te-bar--drag {
+	-webkit-app-region: drag;
+	app-region: drag;
+}
+
+.te-bar--drag .te-tab {
+	-webkit-app-region: no-drag;
+	app-region: no-drag;
+}
+
+.te-tab {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	gap: 1ch;
+	height: 100%;
+	padding: 0 0.5ch;
+	cursor: default;
+}
+
+.te-tab[aria-selected="true"] {
+	color: var(--te-fg);
+}
+
+.te-tab[aria-selected="true"]::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: calc(-1 * var(--te-bar-pad));
+	height: 2px;
+	background: var(--te-accent);
+}
+
+.te-tab__dirty {
+	color: var(--te-accent);
+}
+
+.te-tab__dirty:empty {
+	display: none;
+}
+
+.te-cell {
+	display: inline-flex;
+	align-items: center;
+	gap: 1ch;
+}
+
+.te-cell--selection {
+	color: var(--te-accent);
+}
+
+.te-cell--flash {
+	color: var(--te-fg);
+}
+
+.te-cell--error {
+	color: var(--te-error);
+}
+
+.te-cell--spacer {
+	flex: 1;
+}
+
+.te-prompt {
+	flex: 1;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: none;
+	background: transparent;
+	color: var(--te-fg);
+	font: inherit;
+	caret-color: var(--te-caret);
+}
+
+.te-prompt::placeholder {
+	color: var(--te-muted);
+}
+
+/* ---- editor area --------------------------------------------------------- */
+
+/* registration marks: drawn only while te.shot.screen() captures, found by tools/te-snap.py marks */
+body.te-marks .te-pane {
+	outline: 4px solid #ff00ff;
+	outline-offset: -4px;
+}
+
+#editor {
+	position: relative;
+	overflow: hidden;
+}
+
+.te-pane {
+	position: absolute;
+	inset: 0;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+
+.te-pane[hidden] {
+	display: none;
+}
+
+.te-pane__inner {
+	width: min(100%, var(--te-measure));
+	margin: 0 auto;
+	padding: calc(var(--te-size) * var(--te-lh) * 2) 1ch calc(50vh);
+}

@@ -1,0 +1,373 @@
+/* Document typography for the Milkdown/ProseMirror editor (.te-doc). */
+
+.te-doc {
+	outline: none;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	/* The native caret is a 1 px bar; .te-caret (editor/blockcaret.ts) draws a cell-wide block instead. */
+	caret-color: transparent;
+	tab-size: 4;
+}
+
+body[data-caret="bar"] .te-doc {
+	caret-color: var(--te-caret);
+}
+
+.te-doc:focus-visible {
+	outline: none;
+}
+
+.te-doc > * {
+	margin: 0 0 calc(var(--te-size) * var(--te-lh));
+	/* Skip layout and paint for off-screen blocks (spike S3: measured on the 2 MB book). */
+	content-visibility: auto;
+	contain-intrinsic-size: auto 1lh;
+}
+
+/* While measuring or taking pictures every block is laid out, so document coordinates are
+   exact and the live page matches the full-document render (shots/commands.ts). */
+body.te-full .te-doc > * {
+	content-visibility: visible;
+}
+
+.te-doc > *:last-child {
+	margin-bottom: 0;
+}
+
+/* headings: same size as prose, hierarchy by weight, case, spacing and rules */
+.te-doc h1,
+.te-doc h2,
+.te-doc h3,
+.te-doc h4,
+.te-doc h5,
+.te-doc h6 {
+	font-size: inherit;
+	font-weight: 700;
+	line-height: inherit;
+	margin-top: calc(var(--te-size) * var(--te-lh));
+}
+
+.te-doc h1 {
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	padding-bottom: 2px;
+	border-bottom: 2px solid var(--te-fg);
+}
+
+.te-doc h2 {
+	padding-bottom: 2px;
+	border-bottom: 1px solid var(--te-rule);
+}
+
+.te-doc h3 {
+	font-weight: 700;
+}
+
+.te-doc h4,
+.te-doc h5,
+.te-doc h6 {
+	font-weight: 700;
+	color: var(--te-muted);
+}
+
+.te-doc p {
+	margin-top: 0;
+}
+
+.te-doc em {
+	font-style: italic;
+}
+
+.te-doc strong {
+	font-weight: 700;
+}
+
+.te-doc a {
+	color: var(--te-accent);
+	text-decoration: underline;
+	text-underline-offset: 0.15em;
+	cursor: text;
+}
+
+.te-doc code {
+	font-family: inherit;
+	background: var(--te-bg-raised);
+	padding: 0 0.25ch;
+	border-radius: 2px;
+}
+
+.te-doc pre {
+	position: relative;
+	margin: 0 0 calc(var(--te-size) * var(--te-lh));
+	padding: calc(var(--te-size) * var(--te-lh) / 2) 1ch;
+	background: var(--te-bg-raised);
+	color: var(--te-fg);
+	overflow-x: auto;
+	border-radius: 2px;
+}
+
+.te-doc pre code {
+	background: none;
+	padding: 0;
+}
+
+.te-doc pre[data-language]::before {
+	content: attr(data-language);
+	position: absolute;
+	top: 0;
+	right: 1ch;
+	color: var(--te-muted);
+	font-size: inherit;
+}
+
+.te-doc blockquote {
+	margin: 0 0 calc(var(--te-size) * var(--te-lh));
+	padding-left: calc(2ch - 2px);
+	border-left: 2px solid var(--te-rule);
+	color: var(--te-muted);
+}
+
+.te-doc blockquote > * {
+	margin-bottom: 0;
+}
+
+.te-doc ul,
+.te-doc ol {
+	padding-left: 3ch;
+}
+
+.te-doc li {
+	margin: 0;
+}
+
+.te-doc li > p {
+	margin: 0;
+}
+
+.te-doc ul {
+	list-style: none;
+}
+
+.te-doc ul > li::before {
+	content: "-";
+	position: absolute;
+	margin-left: -2ch;
+	color: var(--te-muted);
+}
+
+.te-doc li {
+	position: relative;
+}
+
+.te-doc li[data-item-type="task"]::before {
+	content: none;
+}
+
+.te-doc li[data-item-type="task"] input[type="checkbox"] {
+	appearance: none;
+	position: absolute;
+	margin-left: -3ch;
+	width: 2ch;
+	height: 1lh;
+	cursor: pointer;
+}
+
+.te-doc li[data-item-type="task"] input[type="checkbox"]::before {
+	content: "[ ]";
+	color: var(--te-muted);
+}
+
+.te-doc li[data-item-type="task"] input[type="checkbox"]:checked::before {
+	content: "[x]";
+	color: var(--te-accent);
+}
+
+.te-doc hr {
+	border: 0;
+	border-top: 1px solid var(--te-rule);
+	margin: calc(var(--te-size) * var(--te-lh)) 0;
+}
+
+.te-doc img {
+	display: block;
+	max-width: 100%;
+	height: auto;
+}
+
+.te-doc p:has(> img:only-child) {
+	text-align: center;
+}
+
+.te-doc table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.te-doc th,
+.te-doc td {
+	padding: 0 1ch;
+	border: 1px solid var(--te-rule);
+	text-align: left;
+	vertical-align: top;
+}
+
+.te-doc th {
+	font-weight: 700;
+	background: var(--te-bg-raised);
+}
+
+.te-doc del {
+	color: var(--te-muted);
+}
+
+.te-doc mark {
+	background: var(--te-mark);
+	color: inherit;
+}
+
+/* raw inline HTML stays muted until an inline renderer exists */
+.te-doc span[data-type="html"] {
+	color: var(--te-muted);
+}
+
+/* ---- front-matter node ----------------------------------------------------- */
+
+.te-frontmatter {
+	margin: 0 0 calc(var(--te-size) * var(--te-lh));
+	padding: 0 1ch;
+	border-left: 2px solid var(--te-rule);
+	color: var(--te-muted);
+	white-space: pre-wrap;
+	cursor: text;
+}
+
+.te-frontmatter[data-invalid="true"] {
+	border-left-color: var(--te-error);
+}
+
+.te-frontmatter__summary {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.te-frontmatter__editor {
+	display: block;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: none;
+	resize: none;
+	background: transparent;
+	color: var(--te-fg);
+	font: inherit;
+	line-height: inherit;
+	caret-color: var(--te-caret);
+}
+
+.te-frontmatter.ProseMirror-selectednode {
+	border-left-color: var(--te-accent);
+}
+
+/* ---- block awareness ------------------------------------------------------- */
+
+.te-doc > [data-te-block] {
+	position: relative;
+}
+
+/* ---- block caret (editor/blockcaret.ts) ------------------------------------ */
+
+.te-caret {
+	position: absolute;
+	pointer-events: none;
+	overflow: hidden;
+	white-space: pre;
+	text-align: left;
+	background: var(--te-caret);
+	color: var(--te-bg);
+	animation: te-caret-blink 1.1s step-end infinite;
+}
+
+.te-caret[hidden],
+body[data-caret="bar"] .te-caret,
+body.te-marks:not(.te-keep-caret) .te-caret {
+	display: none;
+}
+
+@keyframes te-caret-blink {
+	0%,
+	49% {
+		opacity: 1;
+	}
+	50%,
+	100% {
+		opacity: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.te-caret {
+		animation: none;
+	}
+}
+
+/* ---- te.debug.boxes() overlay (shots/boxes.ts): 1 px lines painted inside each rect ---- */
+
+.te-boxes {
+	position: absolute;
+	left: 0;
+	top: 0;
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.te-box {
+	position: absolute;
+	box-sizing: border-box;
+}
+
+.te-box--block {
+	box-shadow: inset 0 0 0 1px var(--te-debug);
+}
+
+.te-box--invisible {
+	box-shadow: none;
+}
+
+.te-box--line {
+	box-shadow: inset 0 0 0 1px var(--te-accent);
+}
+
+.te-box__label {
+	position: absolute;
+	padding: 0 0.5ch;
+	font-size: 11px;
+	line-height: 14px;
+	white-space: nowrap;
+	color: var(--te-bg);
+	background: var(--te-debug);
+}
+
+/* in the right margin, level with the block's top edge */
+.te-box__label--right {
+	left: 100%;
+	top: 0;
+	margin-left: 4px;
+}
+
+/* no margin: in the gap above the block, flush with its right edge */
+.te-box__label--above {
+	right: 0;
+	bottom: 100%;
+	margin-bottom: 1px;
+}
+
+/* ---- empty document placeholder -------------------------------------------- */
+
+.te-doc > p.te-empty:first-child:last-child::before {
+	content: attr(data-placeholder);
+	color: var(--te-muted);
+	pointer-events: none;
+	position: absolute;
+}

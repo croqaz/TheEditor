@@ -1,0 +1,18 @@
+{
+	"name": "gruvbox-light",
+	"dark": false,
+	"vars": {
+		"bg": "#fbf1c7",
+		"bg-raised": "#ebdbb2",
+		"fg": "#3c3836",
+		"muted": "#7c6f64",
+		"accent": "#b57614",
+		"rule": "#d5c4a1",
+		"selection": "#d5c4a1",
+		"caret": "#af3a03",
+		"warn": "#b57614",
+		"error": "#9d0006",
+		"debug": "#427b58",
+		"mark": "#ebdbb2"
+	}
+}
